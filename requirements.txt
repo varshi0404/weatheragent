@@ -3,14 +3,13 @@ langchain>=0.2.0,<0.3.0
 langchain-ollama>=0.1.0
 langchain-core>=0.2.0
 
-# ── HTTP / scraping ───────────────────────────────────────────────────────────
+# ── HTTP ──────────────────────────────────────────────────────────────────────
 requests>=2.31.0
-beautifulsoup4>=4.12.0      # available for HTML scraping if needed
-
-# ── Data ─────────────────────────────────────────────────────────────────────
-pandas>=2.0.0               # optional: for advanced analysis / CSV export
 
 # ── Optional UI / API ────────────────────────────────────────────────────────
 # fastapi>=0.110.0          # uncomment to expose a REST API
 # uvicorn[standard]>=0.29.0
 streamlit>=1.35.0           # Streamlit UI
+
+# ── Testing ──────────────────────────────────────────────────────────────────
+pytest>=7.0.0

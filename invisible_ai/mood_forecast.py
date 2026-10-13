@@ -24,11 +24,11 @@ Field aliases handled automatically:
     rain_probability ↔  rain_probability   (same in both schemas)
 
 Importable as a plain Python function (no LangChain dependency needed):
-    from insights.mood_forecast import build_mood_forecast
+    from invisible_ai.mood_forecast import build_mood_forecast
     text = build_mood_forecast("Chennai", records)
 
 Or as a LangChain @tool:
-    from insights.mood_forecast import generate_mood_forecast
+    from invisible_ai.mood_forecast import generate_mood_forecast
     # register in TOOLS list inside agent.py
 """
 

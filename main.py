@@ -8,8 +8,12 @@ Run:
     python main.py "Weather for London?"  # custom query
     python main.py --interactive          # interactive REPL
 
+    python main.py --mode mood "Weather for Paris"   # friendly mood diary
+    python main.py --use-agent "Weather in Tokyo"    # LLM (ReAct) orchestration
+
 Environment:
-    Ollama must be running locally.
+    The default deterministic pipeline needs only network access to Open-Meteo.
+    Ollama (with the chosen --model pulled) is required only with --use-agent.
 """
 
 import sys
@@ -32,8 +36,8 @@ def main():
     )
     parser.add_argument(
         "--model",
-        default="llama3",
-        help="Ollama model name (default: llama3).",
+        default="llama3:8b",
+        help="Ollama model name, used with --use-agent (default: llama3:8b).",
     )
     parser.add_argument(
         "--mode",
