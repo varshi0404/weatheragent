@@ -10,7 +10,7 @@ st.caption("Local Ollama-powered weather insights using Open-Meteo data.")
 
 with st.sidebar:
     st.subheader("Settings")
-    model_name = st.text_input("Ollama model", value="llama3")
+    model_name = st.text_input("Ollama model", value="llama3:8b")
     use_agent = st.checkbox("Use LLM orchestration", value=False)
     verbose = st.checkbox("Verbose output", value=False)
     output_mode = st.selectbox("Output mode", ["report", "mood"], index=0)
@@ -31,6 +31,7 @@ if st.button("Get Weather Insights", type="primary"):
                 verbose=verbose,
                 use_agent=use_agent,
                 output_mode=output_mode,
+                default_city=city.strip(),
             )
             final_query = query.strip() or f"Weather for {city.strip()}"
             report = agent.run(final_query)

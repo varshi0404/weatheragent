@@ -1,7 +1,10 @@
 """
 prompts.py
 ----------
-System prompt and few-shot examples for the ReAct weather agent.
+Mood-aware system prompt and few-shot examples for the ReAct weather agent.
+
+These strings are embedded into a LangChain PromptTemplate, so literal braces
+are escaped as ``{{`` / ``}}``.
 """
 
 SYSTEM_PROMPT = """You are an expert meteorologist AI assistant.
@@ -25,28 +28,51 @@ After receiving the final report, present it to the user exactly as returned.
 If an error occurs at any step, report it clearly and suggest they try again.
 """
 
-FEW_SHOT_EXAMPLE = """
-User: Analyze the weather forecast for Mumbai and give insights.
+MOOD_MODE_INSTRUCTION = """MOOD MODE IS ACTIVE: the user wants a mood forecast.
+Call scrape_weather, then parse_weather_data, then generate_mood_forecast with the
+exact output of parse_weather_data. Skip analyze_weather and generate_weather_insights.
+Your Final Answer must be the mood forecast text exactly as returned by generate_mood_forecast.
+"""
 
+FEW_SHOT_EXAMPLE = """
+Question: Analyze the weather forecast for Mumbai and give insights.
 Thought: I need to fetch weather data for Mumbai first.
 Action: scrape_weather
 Action Input: "Mumbai"
-Observation: {"hourly": {...}, "daily": {...}, "_city": "Mumbai", ...}
+Observation: {{"hourly": {{...}}, "daily": {{...}}, "_city": "Mumbai", ...}}
 
 Thought: Now I need to parse this raw JSON into structured daily records.
 Action: parse_weather_data
 Action Input: <raw JSON from previous step>
-Observation: {"city": "Mumbai", "forecast": [...]}
+Observation: {{"city": "Mumbai", "forecast": [...]}}
 
 Thought: Now I should analyse the structured data for trends and alerts.
 Action: analyze_weather
 Action Input: <parsed JSON from previous step>
-Observation: {"city": "Mumbai", "temp_trend": "rising", "alerts": [...], ...}
+Observation: {{"city": "Mumbai", "temp_trend": "rising", "alerts": [...], ...}}
 
 Thought: Now I can generate the human-readable insights report.
 Action: generate_weather_insights
 Action Input: <analysis JSON from previous step>
 Observation: ====... WEATHER INSIGHTS REPORT ...====
-
 Final Answer: <report text>
+"""
+
+MOOD_FEW_SHOT_EXAMPLE = """
+Question: Give me a mood forecast for Mumbai.
+Thought: I need to fetch weather data for Mumbai first.
+Action: scrape_weather
+Action Input: "Mumbai"
+Observation: {{"hourly": {{...}}, "daily": {{...}}, "_city": "Mumbai", ...}}
+
+Thought: Now I need to parse this raw JSON into structured daily records.
+Action: parse_weather_data
+Action Input: <raw JSON from previous step>
+Observation: {{"city": "Mumbai", "forecast": [...]}}
+
+Thought: The user wants a mood forecast, so I pass the parsed JSON to generate_mood_forecast.
+Action: generate_mood_forecast
+Action Input: <parsed JSON from previous step>
+Observation: 🌤  Mood Forecast — Mumbai ...
+Final Answer: <mood forecast text>
 """

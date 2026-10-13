@@ -46,8 +46,8 @@ def _format_report(analysis: dict) -> str:
     forecast   = analysis.get("forecast", [])
 
     # ── Summary numbers ─────────────────────────────────────────
-    temp_range = f"{tmin}–{tmax}°C" if tmin and tmax else "N/A"
-    hum_str    = f"{hum}%" if hum else "N/A"
+    temp_range = f"{tmin}–{tmax}°C" if tmin is not None and tmax is not None else "N/A"
+    hum_str    = f"{hum}%" if hum is not None else "N/A"
 
     # ── Key insights ─────────────────────────────────────────────
     insights: list[str] = []

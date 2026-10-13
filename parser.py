@@ -29,14 +29,20 @@ def _safe_mean(values: list) -> float:
     return round(mean(filtered), 1) if filtered else 0.0
 
 
+def _series(block: dict, name: str, legacy: str) -> list:
+    """Read an Open-Meteo series, falling back to its pre-2023 legacy name."""
+    values = block.get(name)
+    return values if values is not None else block.get(legacy, [])
+
+
 def _parse(raw: dict) -> list[dict]:
     hourly = raw.get("hourly", {})
     daily  = raw.get("daily",  {})
 
     hours      = hourly.get("time", [])
     temps_h    = hourly.get("temperature_2m", [])
-    humidity_h = hourly.get("relativehumidity_2m", [])
-    cloud_h    = hourly.get("cloudcover", [])
+    humidity_h = _series(hourly, "relative_humidity_2m", "relativehumidity_2m")
+    cloud_h    = _series(hourly, "cloud_cover", "cloudcover")
 
     # Build a day → hourly-values map for fields not in daily
     day_humidity: dict[str, list] = {}
@@ -51,7 +57,7 @@ def _parse(raw: dict) -> list[dict]:
     temp_max  = daily.get("temperature_2m_max", [])
     temp_min  = daily.get("temperature_2m_min", [])
     rain_prob = daily.get("precipitation_probability_max", [])
-    wind_max  = daily.get("windspeed_10m_max", [])
+    wind_max  = _series(daily, "wind_speed_10m_max", "windspeed_10m_max")
 
     records = []
     for idx, date in enumerate(dates):

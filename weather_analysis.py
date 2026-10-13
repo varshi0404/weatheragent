@@ -30,12 +30,16 @@ except ImportError:  # fallback when langchain isn't installed
 
 def _outdoor_score(day: dict) -> float:
     """Higher is better for outdoor activities."""
+    def val(key: str, default: float) -> float:
+        v = day.get(key)
+        return default if v is None else v
+
     score  = 100.0
-    score -= day.get("rain_probability", 0) * 0.5   # heavy penalty for rain
-    score -= max(0, day.get("temp_max", 30) - 33)   * 3   # penalty above 33 °C
-    score -= max(0, 25 - day.get("temp_min", 25))   * 2   # penalty below 25 °C
-    score -= day.get("cloud_cover_avg", 50)          * 0.1
-    score -= max(0, day.get("humidity_avg", 60) - 70) * 0.3
+    score -= val("rain_probability", 0) * 0.5   # heavy penalty for rain
+    score -= max(0, val("temp_max", 30) - 33)   * 3   # penalty above 33 °C
+    score -= max(0, 25 - val("temp_min", 25))   * 2   # penalty below 25 °C
+    score -= val("cloud_cover_avg", 50)          * 0.1
+    score -= max(0, val("humidity_avg", 60) - 70) * 0.3
     return round(score, 1)
 
 
@@ -63,25 +67,25 @@ def _analyse(city: str, forecast: list[dict]) -> dict:
 
     for day in forecast:
         date = day["date"]
-        rp   = day.get("rain_probability", 0)
+        rp   = day.get("rain_probability") or 0
         tmax = day.get("temp_max") or 0
-        hum  = day.get("humidity_avg", 0)
+        hum  = day.get("humidity_avg") or 0
 
         if rp   > 70:  alerts.append(f"Rain alert on {date} ({rp}% chance)")
         if tmax > 35:  alerts.append(f"Heat warning on {date} ({tmax}°C)")
         if hum  > 80:  alerts.append(f"High-humidity discomfort on {date} ({hum}%)")
         if rp   > 50:  rainy_days.append(date)
 
-    # Score each day for outdoor suitability
+    # Score each day for outdoor suitability; only days scoring > 0 qualify
     scored = sorted(forecast, key=_outdoor_score, reverse=True)
-    best_days = [d["date"] for d in scored[:2]]
+    best_days = [d["date"] for d in scored if _outdoor_score(d) > 0][:2]
 
     temp_trend     = _trend([d.get("temp_max")        for d in forecast])
     humidity_trend = _trend([d.get("humidity_avg")    for d in forecast])
     rain_trend     = _trend([d.get("rain_probability") for d in forecast])
 
-    temp_values = [d.get("temp_max") for d in forecast if d.get("temp_max")]
-    hum_values  = [d.get("humidity_avg") for d in forecast if d.get("humidity_avg")]
+    temp_values = [d.get("temp_max") for d in forecast if d.get("temp_max") is not None]
+    hum_values  = [d.get("humidity_avg") for d in forecast if d.get("humidity_avg") is not None]
 
     return {
         "city":          city,
